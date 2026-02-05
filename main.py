@@ -1,9 +1,23 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 import requests
 from io import BytesIO
 
 app = FastAPI(title="OpenProcessing Image API", version="1.0.0")
+
+# Enable CORS for OpenProcessing
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://preview.openprocessing.org",
+        "https://openprocessing.org",
+        "http://localhost:3000",  # For local development
+    ],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 
 # Single GET endpoint
