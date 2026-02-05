@@ -16,7 +16,8 @@ async def getImage(url: str):
     try:
         response = requests.get(url)
         img = Image.open(BytesIO(response.content))
-        rgbData = img.get_flattened_data()
+        img = img.convert('RGB')
+        rgbData = list(img.getdata())
         return {
             "dimensions": img.size,
             "pixels": rgbData
@@ -33,7 +34,8 @@ async def getImageDefault():
     """
     try:
         img = Image.open("utah_teapot.jpg")
-        rgbData = img.get_flattened_data()
+        img = img.convert('RGB')
+        rgbData = list(img.getdata())
         return {
             "dimensions": img.size,
             "pixels": rgbData
