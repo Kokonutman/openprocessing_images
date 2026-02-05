@@ -14,7 +14,18 @@ async def getImage(url: str):
     Usage: /getImage?url=<image_url>
     """
     try:
-        response = requests.get(url)
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        response = requests.get(url, timeout=10, headers=headers)
+        response.raise_for_status()  # Raise an exception for bad status codes
+        
+        # Check if response is actually an image
+        content_type = response.headers.get('content-type', '').lower()
+        if not content_type.startswith('image/'):
+            raise HTTPException(
+                status_code=400, 
+                detail=f"URL does not return an image. Content-Type: {content_type}"
+            )
+        
         img = Image.open(BytesIO(response.content))
         img = img.convert('RGB')
         rgbData = list(img.getdata())
@@ -22,6 +33,8 @@ async def getImage(url: str):
             "dimensions": img.size,
             "pixels": rgbData
         }
+    except requests.RequestException as e:
+        raise HTTPException(status_code=400, detail=f"Failed to fetch image: {str(e)}") from e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
